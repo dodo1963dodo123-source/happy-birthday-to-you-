@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Happy Birthday — Balloons & Cake</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-1:#0f172a;--bg-2:#0b1220;
+  --accent-1:#ff6bcb;--accent-2:#7ce3c9;
+  --text:#f8fafc;--muted:rgba(248,250,252,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Montserrat',sans-serif;
+  height:100vh;
+  background:radial-gradient(1000px 600px at 10% 10%,rgba(124,58,237,.12),transparent),
+             linear-gradient(180deg,var(--bg-1),var(--bg-2));
+  color:var(--text);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.card{
+  width:min(1000px,96%);
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(8px);
+  border-radius:20px;
+  display:grid;grid-template-columns:1fr 400px;
+  padding:32px;gap:24px;align-items:center;
+  box-shadow:0 10px 40px rgba(2,6,23,.6);
+}
+h1{
+  font-size:clamp(32px,6vw,56px);
+  background:linear-gradient(90deg,var(--accent-1),var(--accent-2));
+  -webkit-background-clip:text;color:transparent;
+  font-weight:900;margin-bottom:10px;
+}
+.lead{color:var(--muted);font-size:18px;margin-bottom:20px;}
+.buttons{display:flex;gap:12px;flex-wrap:wrap;}
+.btn{
+  padding:12px 18px;border-radius:12px;
+  border:0;font-weight:700;cursor:pointer;
+  background:linear-gradient(90deg,var(--accent-1),var(--accent-2));
+  color:#061118;
+}
+.stage{position:relative;display:flex;align-items:center;justify-content:center;}
+.cake-wrap{width:280px;}
+.flame{transition:all .4s ease;transform-origin:center bottom;}
+.flame.puffed{transform:scale(0);opacity:0;}
+.smoke{position:absolute;left:50%;bottom:56%;transform:translateX(-50%);}
+.smoke .puff{
+  width:12px;height:12px;border-radius:50%;
+  background:linear-gradient(180deg,#ddd,#bbb);opacity:.3;
+  position:absolute;animation:smokeUp 1.4s ease forwards;
+}
+@keyframes smokeUp{
+  0%{transform:translate(-50%,0) scale(.6);opacity:.3}
+  100%{transform:translate(-65%,-88px) scale(1.6);opacity:0}
+}
+.emoji{position:absolute;font-size:28px;pointer-events:none;}
+/* Balloons */
+.balloon{
+  position:absolute;
+  width:40px;height:50px;border-radius:50%;
+  background:red;
+  box-shadow:inset -6px -8px rgba(0,0,0,0.2);
+  animation:floatUp 5s linear forwards;
+}
+.balloon::after{
+  content:'';position:absolute;bottom:-12px;left:50%;
+  width:2px;height:14px;background:#fff;transform:translateX(-50%);
+}
+@keyframes floatUp{
+  0%{transform:translateY(0) scale(1);opacity:1}
+  100%{transform:translateY(-120vh) scale(1.2);opacity:0}
+}
+@media(max-width:900px){
+  .card{grid-template-columns:1fr;}
+  .stage{order:-1;}
+}
+</style>
+</head>
+<body>
+<section class="card">
+  <div>
+    <h1>Happy Birthday!</h1>
+    <p class="lead">Click the candle to blow it out 🎂 — tap anywhere for 🌷🍰🎉 and press “Show Balloons” for flying colors!</p>
+    <div class="buttons">
+      <button class="btn" id="relightBtn">Relight Candle</button>
+      <button class="btn" id="balloonBtn">Show Balloons 🎈</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="cake-wrap">
+      <svg viewBox="0 0 420 420">
+        <ellipse cx="210" cy="362" rx="132" ry="20" fill="rgba(0,0,0,0.18)"/>
+        <g transform="translate(0,30)">
+          <rect x="62" y="140" width="296" height="150" rx="22" fill="#fff7f0"/>
+          <rect x="62" y="140" width="296" height="30" rx="15" fill="#ffdede"/>
+          <g id="candleGroup" style="cursor:pointer;">
+            <rect x="198" y="66" width="24" height="78" rx="6" fill="#fff" stroke="#ffd166" stroke-width="2"/>
+            <rect x="206" y="56" width="8" height="10" rx="3" fill="#222"/>
+            <g id="flame" class="flame">
+              <path d="M210 48c6 0 12 10 12 18s-6 18-12 18-12-10-12-18 6-18 12-18z" fill="#ffd166"/>
+              <path d="M210 52c3 0 7 6 7 11s-4 11-7 11-7-6-7-11 4-11 7-11z" fill="#ff6bcb"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="smoke" id="smoke"></div>
+  </div>
+</section>
+
+<script>
+const candle=document.getElementById('candleGroup');
+const flame=document.getElementById('flame');
+const smoke=document.getElementById('smoke');
+const relightBtn=document.getElementById('relightBtn');
+const stage=document.getElementById('stage');
+const balloonBtn=document.getElementById('balloonBtn');
+let off=false;
+
+// extinguish
+function spawnSmoke(){
+  for(let i=0;i<3;i++){
+    const puff=document.createElement('div');
+    puff.className='puff';
+    puff.style.left=(50+(Math.random()*40-20))+'%';
+    smoke.appendChild(puff);
+    setTimeout(()=>puff.remove(),1400);
+  }
+}
+function extinguish(){
+  if(off)return;
+  off=true;
+  flame.classList.add('puffed');
+  spawnSmoke();
+}
+function relight(){
+  off=false;
+  flame.classList.remove('puffed');
+}
+candle.addEventListener('click',extinguish);
+relightBtn.addEventListener('click',relight);
+
+// emojis
+const EMOJIS=['🌷','🎂','🍰','🎉'];
+document.addEventListener('click',(e)=>{
+  const x=e.clientX,y=e.clientY;
+  const el=document.createElement('div');
+  el.className='emoji';
+  el.textContent=EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+  document.body.appendChild(el);
+  el.style.left=(x-14)+'px';el.style.top=(y-14)+'px';
+  el.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-120px)',opacity:0}],{duration:1500});
+  setTimeout(()=>el.remove(),1500);
+});
+
+// balloons
+function spawnBalloons(){
+  for(let i=0;i<12;i++){
+    const b=document.createElement('div');
+    b.className='balloon';
+    const colors=['#ff6bcb','#7ce3c9','#ffd166','#a78bfa','#f78da7'];
+    b.style.background=colors[Math.floor(Math.random()*colors.length)];
+    b.style.left=Math.random()*100+'%';
+    b.style.animationDuration=(4+Math.random()*3)+'s';
+    document.body.appendChild(b);
+    setTimeout(()=>b.remove(),7000);
+  }
+}
+balloonBtn.addEventListener('click',spawnBalloons);
+</script>
+</body>
+</html>
